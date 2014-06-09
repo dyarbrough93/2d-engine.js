@@ -1,5 +1,5 @@
 // Global variables
-var cw, ch, canvas, ctx, gameObjects = [];
+var cw, ch, canvas, ctx, gameObjects = [], grid, flag = true;
 
 // Global settings
 var settings = {
@@ -15,7 +15,7 @@ function init()
 {
 	initCanvas();
 	initEventListeners();
-	initGameObjects();
+	initGameElements();
 	loop();
 };
 
@@ -44,7 +44,7 @@ function initEventListeners()
 }
 
 // Initializae all GameObjects
-function initGameObjects()
+function initGameElements()
 {
 	var object = new Polygon({
 		pos: {
@@ -62,11 +62,20 @@ function initGameObjects()
 			{x: 10, y: 3},
 			{x: 12, y: -12},
 			{x: -13, y: -40}
-		]
+		],
+		wireframe: false,
+		color: 'red'
 	});
 	gameObjects.push(object);
 	//object.addForce(-1, -1);
 	console.log(gameObjects[0]);
+	grid = new Grid({
+		lineWidth: 0.1,
+		lineColor: 'black',
+		lineSpacing: 25,
+		labelColor: 'black',
+		labelSize: 12
+	});
 
 }
 
@@ -94,4 +103,5 @@ function render()
 	ctx.clearRect(0, 0, cw, ch);
 	for (var i in gameObjects)
 		gameObjects[i].render(ctx);
+	grid.render(ctx);
 }

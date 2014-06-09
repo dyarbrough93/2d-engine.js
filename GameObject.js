@@ -25,7 +25,9 @@
  			if (this.rotation >= 2 * Math.PI)
  				this.rotation = 0;
  		},
- 		render: function (ctx) {},
+ 		render: function (ctx) {
+			ctx.fillRect(this.pos.x, this.pos.y, 1, 1);
+		},
  		addForce: function (Fx, Fy) {
  			var ax, ay;
  			ax = Fx / this.mass;
@@ -56,6 +58,7 @@ var Circle = GameObject.extend(function (settings) {
 			this.supr();
 		},
 		render: function (ctx) {
+			this.supr(ctx);
 			ctx.beginPath();
 			ctx.fillStyle = this.color;
 			ctx.arc(this.pos.x, this.pos.y, this.radius, 0, Math.PI * 2);
@@ -83,6 +86,7 @@ var Rectangle = GameObject.extend(function (settings) {
 			this.supr();
 		},
 		render: function (ctx) {
+			this.supr(ctx);
 			ctx.save();
 			ctx.translate(this.pos.x, this.pos.y);
 			ctx.rotate(this.rotation);
@@ -114,6 +118,7 @@ var Polygon = GameObject.extend(function (settings) {
 			this.supr();
 		},
 		render: function (ctx) {
+			this.supr(ctx);
 			ctx.save();
 			ctx.translate(this.pos.x, this.pos.y);
 			ctx.rotate(this.rotation);
@@ -123,8 +128,8 @@ var Polygon = GameObject.extend(function (settings) {
 			for (var i = 0; i < this.matrix.length - 1; i++) 
 				ctx.lineTo(this.matrix[i + 1].x, this.matrix[i + 1].y);
 			ctx.closePath();
-			//ctx.fill();
-			ctx.stroke();
+			ctx.fill();
+			//ctx.stroke();
 			ctx.restore();
 			this.drawInfo(ctx, 12);
 		},
