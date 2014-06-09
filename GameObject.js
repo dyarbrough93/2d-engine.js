@@ -37,6 +37,7 @@
  			this.vel.y += ay;
  		},
  		drawInfo: function (ctx, spacing) {
+			ctx.font = '10px Arial';
  			ctx.fillText("x-position: " + this.pos.x, 0, spacing * 1);
  			ctx.fillText("y-position: " + this.pos.y, 0, spacing * 2);
  			ctx.fillText("x-velocity: " + this.vel.x, 0, spacing * 3);

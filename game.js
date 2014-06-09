@@ -70,11 +70,9 @@ function initGameElements()
 	//object.addForce(-1, -1);
 	console.log(gameObjects[0]);
 	grid = new Grid({
-		lineWidth: 0.1,
 		lineColor: 'black',
 		lineSpacing: 25,
 		labelColor: 'black',
-		labelSize: 12
 	});
 
 }
