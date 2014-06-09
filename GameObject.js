@@ -26,6 +26,14 @@
  				this.rotation = 0;
  		},
  		render: function (ctx) {},
+ 		addForce: function (Fx, Fy) {
+ 			var ax, ay;
+ 			ax = Fx / this.mass;
+ 			ay = Fy / this.mass;
+
+ 			this.vel.x += ax;
+ 			this.vel.y += ay;
+ 		},
  		drawInfo: function (ctx, spacing) {
  			ctx.fillText("x-position: " + this.pos.x, 0, spacing * 1);
  			ctx.fillText("y-position: " + this.pos.y, 0, spacing * 2);
@@ -52,6 +60,14 @@ var Circle = GameObject.extend(function (settings) {
 			ctx.fillStyle = this.color;
 			ctx.arc(this.pos.x, this.pos.y, this.radius, 0, Math.PI * 2);
 			ctx.fill();
+			this.drawInfo(ctx, 12);
+		},
+		addForce: function (Fx, Fy) {
+			this.supr(Fx, Fy);
+		},
+		drawInfo: function (ctx, spacing) {
+			this.supr(ctx, spacing);
+			ctx.fillText("radius: " + this.radius, 0, spacing * 8);
 		}
 	});
 
@@ -68,7 +84,7 @@ var Rectangle = GameObject.extend(function (settings) {
 		},
 		render: function (ctx) {
 			ctx.save();
-			ctx.translate(this.pos.x + this.width / 2, this.pos.y + this.height / 2);
+			ctx.translate(this.pos.x, this.pos.y);
 			ctx.rotate(this.rotation);
 			ctx.beginPath();
 			ctx.fillStyle = this.color;
@@ -76,9 +92,51 @@ var Rectangle = GameObject.extend(function (settings) {
 			ctx.restore();
 			this.drawInfo(ctx, 12);
 		},
+		addForce: function () {
+			this.supr(Fx, Fy);
+		},
 		drawInfo: function (ctx, spacing) {
 			this.supr(ctx, spacing);
 			ctx.fillText("width: " + this.width, 0, spacing * 8);
 			ctx.fillText("height: " + this.height, 0, spacing * 9);
 		}
-	})
+	});
+
+/*
+ * Polygon class
+ * @param matrix Matrix of points representing the polygon as positioned around the coordinates (0, 0)
+ */
+var Polygon = GameObject.extend(function (settings) {
+	this.matrix = settings.matrix;
+})
+	.methods({
+		update: function () {
+			this.supr();
+		},
+		render: function (ctx) {
+			ctx.save();
+			ctx.translate(this.pos.x, this.pos.y);
+			ctx.rotate(this.rotation);
+			ctx.beginPath();
+			ctx.fillStyle = this.color;
+			ctx.moveTo(this.matrix[0].x, this.matrix[0].y);
+			for (var i = 0; i < this.matrix.length - 1; i++) 
+				ctx.lineTo(this.matrix[i + 1].x, this.matrix[i + 1].y);
+			ctx.closePath();
+			//ctx.fill();
+			ctx.stroke();
+			ctx.restore();
+			this.drawInfo(ctx, 12);
+		},
+		addForce: function (Fx, Fy) {
+			this.supr(Fx, Fy);
+		},
+		drawInfo: function (ctx, spacing) {
+			this.supr(ctx, spacing);
+			ctx.fillText("matrix: ", 0, spacing * 8);
+			for (var i = 0; i < this.matrix.length; i++)
+			{
+				ctx.fillText("{" + this.matrix[i].x + ", " + this.matrix[i].y + "}", 40, spacing * (8 + i));
+			}
+		}
+	});
