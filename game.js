@@ -52,7 +52,7 @@ function initGameElements()
 			y: canvas.height / 2
 		},
 		vel: {
-			x: 0,
+			x: 1,
 			y: 0
 		},
 		width: 50,
@@ -82,7 +82,8 @@ function loop()
 {
 	update();
 	render();
-	setTimeout(loop, 1000 / settings.frameRate);
+	//setTimeout(loop, 1000 / settings.frameRate);
+	setTimeout(loop, 0);
 }
 
 // Update all game elements
@@ -91,7 +92,7 @@ function update()
 	for (var i in gameObjects)
 	{
 		gameObjects[i].update();
-		gameObjects[i].addForce(0, settings.gravity);
+		gameObjects[i].addForce(0, 0, 0, settings.gravity);
 	}
 }
 
