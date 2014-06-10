@@ -18,6 +18,9 @@
  	this.color = settings.color || 'black'; // color of the GameObject
  })
  	.methods({
+		/*
+		 * Update the GameObject for rendering
+		 */
  		update: function () {
  			this.pos.x += this.vel.x;
  			this.pos.y += this.vel.y;
@@ -25,10 +28,19 @@
  			if (this.rotation >= 2 * Math.PI)
  				this.rotation = 0;
  		},
+		/*
+		 * Render the GameObject
+		 * @param ctx The context to render to
+		 */
  		render: function (ctx) {
 			ctx.fillRect(this.pos.x, this.pos.y, 1, 1);
 		},
- 		addForce: function (Fx, Fy) {
+		/*
+		 * Add a force to the GameObject at the specificed position
+		 * @param x, y Coordinates to add the force at
+		 * @param Fx, Fy X and y magnitudes of the force to add
+		 */
+ 		addForce: function (x, y, Fx, Fy) {
  			var ax, ay;
  			ax = Fx / this.mass;
  			ay = Fy / this.mass;
@@ -36,6 +48,11 @@
  			this.vel.x += ax;
  			this.vel.y += ay;
  		},
+		/*
+		 * Draw relevant info about the GameObject to the canvas
+		 * @param ctx The context to render to
+		 * @param spacing How far apart each line should be from the one before it
+		 */
  		drawInfo: function (ctx, spacing) {
 			ctx.font = '10px Arial';
  			ctx.fillText("x-position: " + this.pos.x, 0, spacing * 1);
@@ -66,8 +83,8 @@ var Circle = GameObject.extend(function (settings) {
 			ctx.fill();
 			this.drawInfo(ctx, 12);
 		},
-		addForce: function (Fx, Fy) {
-			this.supr(Fx, Fy);
+		addForce: function (x, y, Fx, Fy) {
+			this.supr(x, y, Fx, Fy);
 		},
 		drawInfo: function (ctx, spacing) {
 			this.supr(ctx, spacing);
@@ -97,8 +114,8 @@ var Rectangle = GameObject.extend(function (settings) {
 			ctx.restore();
 			this.drawInfo(ctx, 12);
 		},
-		addForce: function () {
-			this.supr(Fx, Fy);
+		addForce: function (x, y, Fx, Fy) {
+			this.supr(x, y, Fx, Fy);
 		},
 		drawInfo: function (ctx, spacing) {
 			this.supr(ctx, spacing);
@@ -134,8 +151,8 @@ var Polygon = GameObject.extend(function (settings) {
 			ctx.restore();
 			this.drawInfo(ctx, 12);
 		},
-		addForce: function (Fx, Fy) {
-			this.supr(Fx, Fy);
+		addForce: function (x, y, Fx, Fy) {
+			this.supr(x, y, Fx, Fy);
 		},
 		drawInfo: function (ctx, spacing) {
 			this.supr(ctx, spacing);
