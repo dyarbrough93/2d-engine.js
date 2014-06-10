@@ -66,7 +66,8 @@
  	});
 
 /*
- * Ball class
+ * Circle class
+ * @param settings Object containing initializations for the circle
  */
 var Circle = GameObject.extend(function (settings) {
 	this.radius = settings.radius || 1;
@@ -94,6 +95,7 @@ var Circle = GameObject.extend(function (settings) {
 
 /*
  * Rectangle class
+ * @param settings Object containing initializations for the rectange
  */
 var Rectangle = GameObject.extend(function (settings) {
 	this.width = settings.width || 5; // width of the rectangle
@@ -126,6 +128,7 @@ var Rectangle = GameObject.extend(function (settings) {
 
 /*
  * Polygon class
+ * @param settings Object containing initializations for the polygon
  * @param matrix Matrix of points representing the polygon as positioned around the coordinates (0, 0)
  */
 var Polygon = GameObject.extend(function (settings) {
