@@ -62,11 +62,11 @@ function initGameElements()
 			y: 240
 		},
 		vel: {
-			x: 0,
-			y: 0
+			x: 1,
+			y: 1
 		},
 		width: 50,
-		alpha: 0.05,
+		alpha: 0.1,
 		matrix: [
 			new Point(-40, -35),
 			new Point(-30, 30),
@@ -85,22 +85,20 @@ function initGameElements()
 		lineSpacing: 30,
 		labelColor: 'black',
 	});
-
 }
 
 // Game loop
 function loop()
 {
 	if (eventHandlers.keys.shiftDown)
-		paused = false;
-	else
 		paused = true;
+	else
+		paused = false;
 
 	if (!paused || step) {
 		step = false;
 		update();
 		render();
-		//setTimeout(loop, 1000 / settings.frameRate);
 	}
 	requestAnimationFrame(loop);
 }

@@ -31,6 +31,6 @@ var Point = klass(function(x, y) {
 			// translate point back to global coords
 			this.x = newx + other.x;
 			this.y = newy + other.y;
-		}
+		},
 	})
 ;

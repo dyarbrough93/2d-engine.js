@@ -192,7 +192,7 @@ var Polygon = GameObject.extend(function (settings) {
 		},
 		updateMatrix: function() {
 			for (var i = 0; i < this.matrix.length; i++)
-				this.matrix[i].rotate(this.pos, this.alpha);
+				this.matrix[i].rotate(new Point(0, 0), this.alpha);
 		},
 		updateAABB: function () {
 			this.AABB.left = this.AABB.findLeft(this.matrix);
