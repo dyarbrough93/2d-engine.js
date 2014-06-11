@@ -1,5 +1,5 @@
 // Global variables
-var cw, ch, canvas, ctx, gameObjects = [], grid, flag = true;
+var cw, ch, canvas, ctx, gameObjects, grid, flag, paused, step;
 
 // Global settings
 var settings = {
@@ -13,16 +13,26 @@ window.onload = init;
 // Initialize everything and start the game loop
 function init()
 {
+	initGlobalVariables();
 	initCanvas();
 	initEventListeners();
 	initGameElements();
 	loop();
-};
+}
+
+// Initialize all global variables
+function initGlobalVariables()
+{
+	gameObjects = [];
+	flag = true;
+	paused = true;
+	step = false;
+}
 
 // Create and add the canvas to the document
 function initCanvas()
 {
-	canvas = document.createElement("canvas")
+	canvas = document.createElement("canvas");
 	document.body.children[0].appendChild(canvas);
 	ctx = canvas.getContext("2d");
 	cw = canvas.width = window.innerWidth - 100;
@@ -48,30 +58,31 @@ function initGameElements()
 {
 	var object = new Polygon({
 		pos: {
-			x: canvas.width / 2,
-			y: canvas.height / 2
+			x: 120,
+			y: 240
 		},
 		vel: {
-			x: 1,
+			x: 0,
 			y: 0
 		},
 		width: 50,
-		alpha: 0,
+		alpha: 0.05,
 		matrix: [
-			{x: -32, y: 15},
-			{x: 10, y: 3},
-			{x: 12, y: -12},
-			{x: -13, y: -40}
+			new Point(-40, -35),
+			new Point(-30, 30),
+			new Point(5, 10),
+			new Point(30, 32),
+			new Point(30, -30)
 		],
 		wireframe: false,
 		color: 'red'
 	});
 	gameObjects.push(object);
 	//object.addForce(-1, -1);
-	console.log(gameObjects[0]);
+	//console.log(gameObjects[0]);
 	grid = new Grid({
-		lineColor: 'black',
-		lineSpacing: 25,
+		lineColor: 'rgba(0, 0, 0, 1)',
+		lineSpacing: 30,
 		labelColor: 'black',
 	});
 
@@ -80,10 +91,18 @@ function initGameElements()
 // Game loop
 function loop()
 {
-	update();
-	render();
-	//setTimeout(loop, 1000 / settings.frameRate);
-	setTimeout(loop, 0);
+	if (eventHandlers.keys.shiftDown)
+		paused = false;
+	else
+		paused = true;
+
+	if (!paused || step) {
+		step = false;
+		update();
+		render();
+		//setTimeout(loop, 1000 / settings.frameRate);
+	}
+	requestAnimationFrame(loop);
 }
 
 // Update all game elements
@@ -103,4 +122,5 @@ function render()
 	for (var i in gameObjects)
 		gameObjects[i].render(ctx);
 	grid.render(ctx);
+	gameObjects[0].drawInfo(ctx, 12);
 }

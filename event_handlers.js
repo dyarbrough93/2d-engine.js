@@ -26,7 +26,7 @@ var eventHandlers = {
 			if (e.which === eventHandlers.mousecodes.LEFT) 
 			{
 				eventHandlers.mouse.leftDown = true;
-				console.log(eventHandlers.mouse.x + ", " + eventHandlers.mouse.y);
+				//console.log(eventHandlers.mouse.x + ", " + eventHandlers.mouse.y);
 			}
 			else if (e.which ===  eventHandlers.mousecodes.RIGHT)
 				eventHandlers.mouse.rightDown = true;
@@ -63,7 +63,6 @@ var eventHandlers = {
 		canvas.onkeydown = function(e) {
 			switch(e.which) {
 				case eventHandlers.keycodes.BACKSPACE: 
-					console.log("hi");
 					eventHandlers.keys.backspaceDown = true;
 					break;
 				case eventHandlers.keycodes.TAB:
@@ -77,6 +76,7 @@ var eventHandlers = {
 					break;
 				case eventHandlers.keycodes.CTRL:
 					eventHandlers.keys.ctrlDown = true;
+					step = true;
 					break;
 				case eventHandlers.keycodes.ALT:
 					eventHandlers.keys.altDown = true;

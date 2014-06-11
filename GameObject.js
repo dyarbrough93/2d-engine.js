@@ -10,7 +10,7 @@
  * @param settings Object containing initializations for the GameObject
  */
  var GameObject = klass(function (settings) {
- 	this.pos = settings.pos || {x: 0, y: 0}; // position of the GameObject on the canvas
+ 	this.pos = settings.pos || new Point(0, 0); // position of the GameObject on the canvas
  	this.vel = settings.vel || {x: 0, y: 0}; // velocity of the GameObject
  	this.rotation = settings.rotation || 0; // rotation of the object from its default, in radians
  	this.alpha = settings.alpha || 0; // angular velocity of the GameObject
@@ -54,6 +54,9 @@
 		 * @param spacing How far apart each line should be from the one before it
 		 */
  		drawInfo: function (ctx, spacing) {
+ 			ctx.fillStyle = 'white';
+ 			ctx.fillRect(0, 0, 100, 150);
+ 			ctx.fillStyle = 'black';
 			ctx.font = '10px Arial';
  			ctx.fillText("x-position: " + this.pos.x, 0, spacing * 1);
  			ctx.fillText("y-position: " + this.pos.y, 0, spacing * 2);
@@ -82,7 +85,6 @@ var Circle = GameObject.extend(function (settings) {
 			ctx.fillStyle = this.color;
 			ctx.arc(this.pos.x, this.pos.y, this.radius, 0, Math.PI * 2);
 			ctx.fill();
-			this.drawInfo(ctx, 12);
 		},
 		addForce: function (x, y, Fx, Fy) {
 			this.supr(x, y, Fx, Fy);
@@ -114,7 +116,6 @@ var Rectangle = GameObject.extend(function (settings) {
 			ctx.fillStyle = this.color;
 			ctx.fillRect(0 - this.width / 2, 0 - this.height / 2, this.width, this.height);
 			ctx.restore();
-			this.drawInfo(ctx, 12);
 		},
 		addForce: function (x, y, Fx, Fy) {
 			this.supr(x, y, Fx, Fy);
@@ -129,20 +130,79 @@ var Rectangle = GameObject.extend(function (settings) {
 /*
  * Polygon class
  * @param settings Object containing initializations for the polygon
- * @param matrix Matrix of points representing the polygon as positioned around the coordinates (0, 0)
+ * @param matrix Matrix of Points representing the polygon as positioned around the coordinates (0, 0)
  */
 var Polygon = GameObject.extend(function (settings) {
 	this.matrix = settings.matrix;
+	this.AABB = { // axis-aligned bounding box
+		findLeft: function(matrix) {
+			var min = Number.MAX_VALUE;
+			for (var i = 0; i < matrix.length; i++)
+			{
+				var curr = matrix[i].x;
+				if (curr < min)
+					min = curr;
+			}
+			return min;
+		},
+		findRight: function(matrix) {
+			var max = Number.MIN_VALUE;
+			for (var i = 0; i < matrix.length; i++)
+			{
+				var curr = matrix[i].x;
+				if (curr > max)
+					max = curr;
+			}
+			return max;
+		},
+		findTop: function(matrix) {
+			var min = Number.MAX_VALUE;
+			for (var i = 0; i < matrix.length; i++)
+			{
+				var curr = matrix[i].y;
+				if (curr < min)
+					min = curr;
+			}
+			return min;
+		},
+		findBottom: function(matrix) {
+			var max = Number.MIN_VALUE;
+			for (var i = 0; i < matrix.length; i++)
+			{
+				var curr = matrix[i].y;
+				if (curr > max)
+					max = curr;
+			}
+			return max;
+		},
+	}
+	this.AABB.left = this.AABB.findLeft(this.matrix);
+	this.AABB.right = this.AABB.findRight(this.matrix);
+	this.AABB.top = this.AABB.findTop(this.matrix);
+	this.AABB.bottom = this.AABB.findBottom(this.matrix);
 })
 	.methods({
 		update: function () {
 			this.supr();
+			if (this.alpha !== 0)
+			{
+				this.updateMatrix();
+				this.updateAABB();
+			}
+		},
+		updateMatrix: function() {
+			for (var i = 0; i < this.matrix.length; i++)
+				this.matrix[i].rotate(this.pos, this.alpha);
+		},
+		updateAABB: function () {
+			this.AABB.left = this.AABB.findLeft(this.matrix);
+			this.AABB.right = this.AABB.findRight(this.matrix);
+			this.AABB.top = this.AABB.findTop(this.matrix);
+			this.AABB.bottom = this.AABB.findBottom(this.matrix);
 		},
 		render: function (ctx) {
-			this.supr(ctx);
 			ctx.save();
 			ctx.translate(this.pos.x, this.pos.y);
-			ctx.rotate(this.rotation);
 			ctx.beginPath();
 			ctx.fillStyle = this.color;
 			ctx.moveTo(this.matrix[0].x, this.matrix[0].y);
@@ -152,7 +212,24 @@ var Polygon = GameObject.extend(function (settings) {
 			ctx.fill();
 			//ctx.stroke();
 			ctx.restore();
-			this.drawInfo(ctx, 12);
+			this.supr(ctx);
+
+
+			ctx.save();
+			ctx.translate(this.pos.x, this.pos.y);
+			ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+			ctx.fillRect(this.AABB.left, this.AABB.top, this.AABB.right - this.AABB.left, this.AABB.bottom - this.AABB.top);
+			ctx.restore();
+
+			if (flag)
+			{
+				console.log(this.AABB.left);
+				console.log(this.AABB.right);
+				console.log(this.AABB.top);
+				console.log(this.AABB.bottom);
+
+				flag = false;
+			}
 		},
 		addForce: function (x, y, Fx, Fy) {
 			this.supr(x, y, Fx, Fy);

@@ -16,7 +16,7 @@ var Grid = klass(function (settings) {
 	.methods({
 		render: function (ctx) {
 			ctx.beginPath();
-			ctx.strokeStyle = this.strokeStyle;
+			ctx.strokeStyle = this.lineColor;
 			ctx.lineWidth = 1;
 			ctx.font = '8px Arial';
 			for (var y = this.lineSpacing; y < ctx.canvas.height; y += this.lineSpacing)
@@ -33,10 +33,7 @@ var Grid = klass(function (settings) {
 				ctx.moveTo(x, 0);
 				ctx.lineTo(x, ctx.canvas.height);
 				ctx.stroke();
-				//ctx.save();
-				//ctx.rotate(Math.PI);
-				//ctx.fillText(x - 0.5, x - 2, 0);
-				//ctx.restore();
+				ctx.fillText(x - 0.5, x + 1, ctx.canvas.height);
 			}
 		}
 	});
