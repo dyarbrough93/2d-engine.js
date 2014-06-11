@@ -16,6 +16,8 @@
  	this.alpha = settings.alpha || 0; // angular velocity of the GameObject
  	this.mass = settings.mass || 1; // mass of the GameObject
  	this.color = settings.color || 'black'; // color of the GameObject
+	this.selected = false; // whether or not this object is selected
+	this.wireframe = settings.wireframe; // whether or not to draw this object with a wireframe
  })
  	.methods({
 		/*
@@ -33,7 +35,18 @@
 		 * @param ctx The context to render to
 		 */
  		render: function (ctx) {
-			ctx.fillRect(this.pos.x, this.pos.y, 1, 1);
+			if (!this.wireframe)
+			{
+				ctx.fillStyle = this.color;
+				ctx.fill();
+			} 
+			else
+			{
+				ctx.strokeStyle = this.color;
+				ctx.stroke();
+			}
+			ctx.restore();
+			ctx.fillRect(this.pos.x - 1, this.pos.y - 1, 3, 3);
 		},
 		/*
 		 * Add a force to the GameObject at the specificed position
@@ -204,32 +217,18 @@ var Polygon = GameObject.extend(function (settings) {
 			ctx.save();
 			ctx.translate(this.pos.x, this.pos.y);
 			ctx.beginPath();
-			ctx.fillStyle = this.color;
 			ctx.moveTo(this.matrix[0].x, this.matrix[0].y);
 			for (var i = 0; i < this.matrix.length - 1; i++) 
 				ctx.lineTo(this.matrix[i + 1].x, this.matrix[i + 1].y);
 			ctx.closePath();
-			ctx.fill();
-			//ctx.stroke();
-			ctx.restore();
 			this.supr(ctx);
 
-
+			// render the AABB
 			ctx.save();
 			ctx.translate(this.pos.x, this.pos.y);
 			ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
 			ctx.fillRect(this.AABB.left, this.AABB.top, this.AABB.right - this.AABB.left, this.AABB.bottom - this.AABB.top);
 			ctx.restore();
-
-			if (flag)
-			{
-				console.log(this.AABB.left);
-				console.log(this.AABB.right);
-				console.log(this.AABB.top);
-				console.log(this.AABB.bottom);
-
-				flag = false;
-			}
 		},
 		addForce: function (x, y, Fx, Fy) {
 			this.supr(x, y, Fx, Fy);

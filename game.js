@@ -56,7 +56,7 @@ function initEventListeners()
 // Initializae all GameObjects
 function initGameElements()
 {
-	var object = new Polygon({
+	var polygon = new Polygon({
 		pos: {
 			x: 120,
 			y: 240
@@ -65,7 +65,7 @@ function initGameElements()
 			x: 1,
 			y: 1
 		},
-		width: 50,
+		//width: 50,
 		alpha: 0.1,
 		matrix: [
 			new Point(-40, -35),
@@ -77,7 +77,27 @@ function initGameElements()
 		wireframe: false,
 		color: 'red'
 	});
-	gameObjects.push(object);
+	gameObjects.push(polygon);
+	var polygon_2 = new Polygon({
+		pos: {
+			x: 270,
+			y: 390
+		},
+		vel: {
+			x: -1,
+			y: -1
+		},
+		alpha: -0.1,
+		matrix: [
+			new Point(-10, 15),
+			new Point(6, 8),
+			new Point(1, -12),
+			new Point (-13, -18)
+		],
+		color: 'green'
+	});
+	console.log(typeof polygon);
+	gameObjects.push(polygon_2);
 	//object.addForce(-1, -1);
 	//console.log(gameObjects[0]);
 	grid = new Grid({
@@ -98,6 +118,8 @@ function loop()
 	if (!paused || step) {
 		step = false;
 		update();
+		checkCollisions();
+		//resolveCollisions();
 		render();
 	}
 	requestAnimationFrame(loop);
@@ -111,6 +133,10 @@ function update()
 		gameObjects[i].update();
 		gameObjects[i].addForce(0, 0, 0, settings.gravity);
 	}
+}
+
+// 
+function checkCollisions() {
 }
 
 // Draw all game elements to the canvas
