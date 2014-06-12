@@ -10,6 +10,9 @@
  * @param settings Object containing initializations for the GameObject
  */
  var GameObject = klass(function (settings) {
+ 	if (!settings.pos)
+ 		throw "InvalidArguments: Position of GameObject not specified in arguments list";
+
  	this.pos = settings.pos || new Point(0, 0); // position of the GameObject on the canvas
  	this.vel = settings.vel || {x: 0, y: 0}; // velocity of the GameObject
  	this.rotation = settings.rotation || 0; // rotation of the object from its default, in radians
@@ -17,7 +20,7 @@
  	this.mass = settings.mass || 1; // mass of the GameObject
  	this.color = settings.color || 'black'; // color of the GameObject
 	this.selected = false; // whether or not this object is selected
-	this.wireframe = settings.wireframe; // whether or not to draw this object with a wireframe
+	this.wireframe = settings.wireframe || false; // whether or not to draw this object with a wireframe
  })
  	.methods({
 		/*
@@ -68,7 +71,7 @@
 		 */
  		drawInfo: function (ctx, spacing) {
  			ctx.fillStyle = 'white';
- 			ctx.fillRect(0, 0, 100, 150);
+ 			ctx.fillRect(0, 0, 120, 180);
  			ctx.fillStyle = 'black';
 			ctx.font = '10px Arial';
  			ctx.fillText("x-position: " + this.pos.x, 0, spacing * 1);
@@ -86,18 +89,48 @@
  * @param settings Object containing initializations for the circle
  */
 var Circle = GameObject.extend(function (settings) {
-	this.radius = settings.radius || 1;
+	if (!settings.radius)
+		throw "InvalidArguments: Circle must be provided with a radius in the arguments list"
+	this.radius = settings.radius;
+	this.AABB = { // axis-aligned bounding box
+		left: settings.pos.x - settings.radius,
+		right: settings.pos.x - settings.radius,
+		top: settings.pos.y - settings.radius,
+		bottom: settings.pos.y + settings.radius,
+		fill: 'rgba(0, 0, 0, 0.3)'
+	}
 })
 	.methods({
 		update: function () {
 			this.supr();
+			this.updateAABB();
+		},
+		updateAABB: function () {
+			this.AABB.left = this.pos.x - this.radius;
+			this.AABB.right = this.pos.x + this.radius;
+			this.AABB.top = this.pos.y - this.radius;
+			this.AABB.bottom = this.pos.y + this.radius;
+		},
+		collidesWith: function(other) {
+			// Check if AABBs collide
+			if (!(this.AABB.left > other.AABB.right ||
+				  this.AABB.right < other.AABB.left ||
+				  this.AABB.top > other.AABB.bottom ||
+				  this.AABB.bottom < other.AABB.top))
+			{
+				this.AABB.fill = 'rgba(255, 0, 0, 0.3)';
+				other.AABB.fill = 'rgba(255, 0, 0, 0.3)';
+			}
 		},
 		render: function (ctx) {
-			this.supr(ctx);
+			ctx.save();
 			ctx.beginPath();
-			ctx.fillStyle = this.color;
 			ctx.arc(this.pos.x, this.pos.y, this.radius, 0, Math.PI * 2);
-			ctx.fill();
+			this.supr(ctx);
+
+			// render AABB
+			ctx.fillStyle = this.AABB.fill;
+			ctx.fillRect(this.AABB.left, this.AABB.top, this.AABB.right - this.AABB.left, this.AABB.bottom - this.AABB.top);
 		},
 		addForce: function (x, y, Fx, Fy) {
 			this.supr(x, y, Fx, Fy);
@@ -109,44 +142,20 @@ var Circle = GameObject.extend(function (settings) {
 	});
 
 /*
- * Rectangle class
- * @param settings Object containing initializations for the rectange
- */
-var Rectangle = GameObject.extend(function (settings) {
-	this.width = settings.width || 5; // width of the rectangle
-	this.height= settings.height || 5; // height of the rectangle
-})
-	.methods({
-		update: function () {
-			this.supr();
-		},
-		render: function (ctx) {
-			this.supr(ctx);
-			ctx.save();
-			ctx.translate(this.pos.x, this.pos.y);
-			ctx.rotate(this.rotation);
-			ctx.beginPath();
-			ctx.fillStyle = this.color;
-			ctx.fillRect(0 - this.width / 2, 0 - this.height / 2, this.width, this.height);
-			ctx.restore();
-		},
-		addForce: function (x, y, Fx, Fy) {
-			this.supr(x, y, Fx, Fy);
-		},
-		drawInfo: function (ctx, spacing) {
-			this.supr(ctx, spacing);
-			ctx.fillText("width: " + this.width, 0, spacing * 8);
-			ctx.fillText("height: " + this.height, 0, spacing * 9);
-		}
-	});
-
-/*
  * Polygon class
  * @param settings Object containing initializations for the polygon
  * @param matrix Matrix of Points representing the polygon as positioned around the coordinates (0, 0)
  */
 var Polygon = GameObject.extend(function (settings) {
-	this.matrix = settings.matrix;
+	if (!settings.matrix)
+		if (!settings.width || !settings.height)
+			throw "InvalidArguments: Polygon must be provided with either a matrix of points or a width and height in the arguments list"
+
+	// if no matrix is provided, set up as a rectangle
+	this.matrix = settings.matrix || [new Point(-settings.width / 2, settings.height / 2), 
+									  new Point(-settings.width / 2, -settings.height / 2), 
+									  new Point(settings.width / 2, -settings.height / 2), 
+									  new Point(settings.width / 2, settings.height / 2)];
 	this.AABB = { // axis-aligned bounding box
 		findLeft: function(matrix) {
 			var min = Number.MAX_VALUE;
@@ -188,30 +197,41 @@ var Polygon = GameObject.extend(function (settings) {
 			}
 			return max;
 		},
+		fill: "rgba(0, 0, 0, 0.3)"
 	}
-	this.AABB.left = this.AABB.findLeft(this.matrix);
-	this.AABB.right = this.AABB.findRight(this.matrix);
-	this.AABB.top = this.AABB.findTop(this.matrix);
-	this.AABB.bottom = this.AABB.findBottom(this.matrix);
+	this.AABB.left = this.AABB.findLeft(this.matrix) + this.pos.x;
+	this.AABB.right = this.AABB.findRight(this.matrix) + this.pos.x;
+	this.AABB.top = this.AABB.findTop(this.matrix) + this.pos.y;
+	this.AABB.bottom = this.AABB.findBottom(this.matrix) + this.pos.y;
 })
 	.methods({
 		update: function () {
 			this.supr();
 			if (this.alpha !== 0)
-			{
 				this.updateMatrix();
-				this.updateAABB();
-			}
+
+			this.updateAABB();
 		},
 		updateMatrix: function() {
 			for (var i = 0; i < this.matrix.length; i++)
 				this.matrix[i].rotate(new Point(0, 0), this.alpha);
 		},
 		updateAABB: function () {
-			this.AABB.left = this.AABB.findLeft(this.matrix);
-			this.AABB.right = this.AABB.findRight(this.matrix);
-			this.AABB.top = this.AABB.findTop(this.matrix);
-			this.AABB.bottom = this.AABB.findBottom(this.matrix);
+			this.AABB.left = this.AABB.findLeft(this.matrix) + this.pos.x;
+			this.AABB.right = this.AABB.findRight(this.matrix) + this.pos.x;
+			this.AABB.top = this.AABB.findTop(this.matrix) + this.pos.y;
+			this.AABB.bottom = this.AABB.findBottom(this.matrix) + this.pos.y;
+		},
+		collidesWith: function(other) {
+			// Check if AABBs collide
+			if (!(this.AABB.left > other.AABB.right ||
+				  this.AABB.right < other.AABB.left ||
+				  this.AABB.top > other.AABB.bottom ||
+				  this.AABB.bottom < other.AABB.top))
+			{
+				this.AABB.fill = 'rgba(255, 0, 0, 0.3)';
+				other.AABB.fill = 'rgba(255, 0, 0, 0.3)';
+			}
 		},
 		render: function (ctx) {
 			ctx.save();
@@ -224,11 +244,8 @@ var Polygon = GameObject.extend(function (settings) {
 			this.supr(ctx);
 
 			// render the AABB
-			ctx.save();
-			ctx.translate(this.pos.x, this.pos.y);
-			ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+			ctx.fillStyle = this.AABB.fill;
 			ctx.fillRect(this.AABB.left, this.AABB.top, this.AABB.right - this.AABB.left, this.AABB.bottom - this.AABB.top);
-			ctx.restore();
 		},
 		addForce: function (x, y, Fx, Fy) {
 			this.supr(x, y, Fx, Fy);
@@ -237,8 +254,6 @@ var Polygon = GameObject.extend(function (settings) {
 			this.supr(ctx, spacing);
 			ctx.fillText("matrix: ", 0, spacing * 8);
 			for (var i = 0; i < this.matrix.length; i++)
-			{
-				ctx.fillText("{" + this.matrix[i].x + ", " + this.matrix[i].y + "}", 40, spacing * (8 + i));
-			}
+				ctx.fillText("{" + (this.matrix[i].x).toFixed(2) + ", " + (this.matrix[i].y).toFixed(2) + "}", 40, spacing * (8 + i));
 		}
 	});

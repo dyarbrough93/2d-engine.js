@@ -17,6 +17,7 @@ var Grid = klass(function (settings) {
 		render: function (ctx) {
 			ctx.beginPath();
 			ctx.strokeStyle = this.lineColor;
+			ctx.fillStyle = 'black';
 			ctx.lineWidth = 1;
 			ctx.font = '8px Arial';
 			for (var y = this.lineSpacing; y < ctx.canvas.height; y += this.lineSpacing)

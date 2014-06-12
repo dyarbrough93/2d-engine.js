@@ -96,8 +96,35 @@ function initGameElements()
 		],
 		color: 'green'
 	});
-	console.log(typeof polygon);
 	gameObjects.push(polygon_2);
+	var square = new Polygon({
+		pos: {
+			x: 480,
+			y: 360
+		},
+		vel: {
+			x: 0.5,
+			y: 0
+		},
+		alpha: 0.1,
+		width: 40,
+		height: 40, 
+		color: 'blue'
+	});
+	gameObjects.push(square);
+	var circle = new Circle({
+		pos: {
+			x: 630,
+			y: 360
+		},
+		vel: {
+			x: -0.1,
+			y: -.1
+		},
+		radius: 15,
+		color: 'red'
+	});
+	gameObjects.push(circle);
 	//object.addForce(-1, -1);
 	//console.log(gameObjects[0]);
 	grid = new Grid({
@@ -129,14 +156,24 @@ function loop()
 function update()
 {
 	for (var i in gameObjects)
+		gameObjects[i].AABB.fill = 'rgba(0, 0, 0, 0.3)';
+
+	for (var i in gameObjects)
 	{
 		gameObjects[i].update();
 		gameObjects[i].addForce(0, 0, 0, settings.gravity);
 	}
 }
 
-// 
+// Check if any objects are currently colliding
 function checkCollisions() {
+	for (var i = 0; i < gameObjects.length; i++)
+	{
+		for (var j = i + 1; j < gameObjects.length; j++)
+		{
+			gameObjects[i].collidesWith(gameObjects[j]);
+		}
+	}
 }
 
 // Draw all game elements to the canvas
@@ -146,5 +183,5 @@ function render()
 	for (var i in gameObjects)
 		gameObjects[i].render(ctx);
 	grid.render(ctx);
-	gameObjects[0].drawInfo(ctx, 12);
+	gameObjects[2].drawInfo(ctx, 12);
 }
