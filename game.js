@@ -122,7 +122,8 @@ function initGameElements()
 			y: -.1
 		},
 		radius: 15,
-		color: 'red'
+		color: 'red',
+		wireframe: true
 	});
 	gameObjects.push(circle);
 	//object.addForce(-1, -1);
@@ -180,8 +181,8 @@ function checkCollisions() {
 function render()
 {
 	ctx.clearRect(0, 0, cw, ch);
+	grid.render(ctx);
 	for (var i in gameObjects)
 		gameObjects[i].render(ctx);
-	grid.render(ctx);
-	gameObjects[2].drawInfo(ctx, 12);
+	
 }

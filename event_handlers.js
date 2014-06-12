@@ -26,6 +26,14 @@ var eventHandlers = {
 			if (e.which === eventHandlers.mousecodes.LEFT) 
 			{
 				eventHandlers.mouse.leftDown = true;
+				for (var i in gameObjects)
+					gameObjects[i].selected = false;
+				for (var i in gameObjects)
+					if (eventHandlers.mouse.x > gameObjects[i].AABB.left &&
+						eventHandlers.mouse.x < gameObjects[i].AABB.right &&
+						eventHandlers.mouse.y < gameObjects[i].AABB.bottom &&
+						eventHandlers.mouse.y > gameObjects[i].AABB.top)
+						gameObjects[i].selected = true;
 				//console.log(eventHandlers.mouse.x + ", " + eventHandlers.mouse.y);
 			}
 			else if (e.which ===  eventHandlers.mousecodes.RIGHT)

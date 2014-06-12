@@ -71,13 +71,13 @@
 		 */
  		drawInfo: function (ctx, spacing) {
  			ctx.fillStyle = 'white';
- 			ctx.fillRect(0, 0, 120, 180);
+ 			ctx.fillRect(0, 0, 120, 150);
  			ctx.fillStyle = 'black';
 			ctx.font = '10px Arial';
- 			ctx.fillText("x-position: " + this.pos.x, 0, spacing * 1);
- 			ctx.fillText("y-position: " + this.pos.y, 0, spacing * 2);
- 			ctx.fillText("x-velocity: " + this.vel.x, 0, spacing * 3);
- 			ctx.fillText("y-velocity: " + this.vel.y, 0, spacing * 4);
+ 			ctx.fillText("x-position: " + (this.pos.x).toFixed(2), 0, spacing * 1);
+ 			ctx.fillText("y-position: " + (this.pos.y).toFixed(2), 0, spacing * 2);
+ 			ctx.fillText("x-velocity: " + (this.vel.x).toFixed(2), 0, spacing * 3);
+ 			ctx.fillText("y-velocity: " + (this.vel.y).toFixed(2), 0, spacing * 4);
  			ctx.fillText("angular velocity: " + this.alpha, 0, spacing * 5);
  			ctx.fillText("rotation: " + (this.rotation / Math.PI).toFixed(2) + "\u03C0", 0, spacing * 6);
  			ctx.fillText("mass: " + this.mass, 0, spacing * 7);
@@ -131,6 +131,9 @@ var Circle = GameObject.extend(function (settings) {
 			// render AABB
 			ctx.fillStyle = this.AABB.fill;
 			ctx.fillRect(this.AABB.left, this.AABB.top, this.AABB.right - this.AABB.left, this.AABB.bottom - this.AABB.top);
+
+			if (this.selected)
+				this.drawInfo(ctx, 12);
 		},
 		addForce: function (x, y, Fx, Fy) {
 			this.supr(x, y, Fx, Fy);
@@ -246,6 +249,9 @@ var Polygon = GameObject.extend(function (settings) {
 			// render the AABB
 			ctx.fillStyle = this.AABB.fill;
 			ctx.fillRect(this.AABB.left, this.AABB.top, this.AABB.right - this.AABB.left, this.AABB.bottom - this.AABB.top);
+
+			if (this.selected)
+				this.drawInfo(ctx, 12);
 		},
 		addForce: function (x, y, Fx, Fy) {
 			this.supr(x, y, Fx, Fy);
