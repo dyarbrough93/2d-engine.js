@@ -9,7 +9,8 @@
  * GameObject superclass
  * @param settings Object containing initializations for the GameObject
  */
- var GameObject = klass(function (settings) {
+ //noinspection JSUnresolvedFunction
+var GameObject = klass(function (settings) {
  	if (!settings.pos)
  		throw "InvalidArguments: Position of GameObject not specified in arguments list";
 
@@ -74,7 +75,7 @@
  			ctx.fillRect(0, 0, 120, 150);
  			ctx.fillStyle = 'black';
 			ctx.font = '10px Arial';
- 			ctx.fillText("x-position: " + (this.pos.x).toFixed(2), 0, spacing * 1);
+ 			ctx.fillText("x-position: " + (this.pos.x).toFixed(2), 0, spacing);
  			ctx.fillText("y-position: " + (this.pos.y).toFixed(2), 0, spacing * 2);
  			ctx.fillText("x-velocity: " + (this.vel.x).toFixed(2), 0, spacing * 3);
  			ctx.fillText("y-velocity: " + (this.vel.y).toFixed(2), 0, spacing * 4);
@@ -90,7 +91,7 @@
  */
 var Circle = GameObject.extend(function (settings) {
 	if (!settings.radius)
-		throw "InvalidArguments: Circle must be provided with a radius in the arguments list"
+		throw "InvalidArguments: Circle must be provided with a radius in the arguments list";
 	this.radius = settings.radius;
 	this.AABB = { // axis-aligned bounding box
 		left: settings.pos.x - settings.radius,
@@ -152,7 +153,7 @@ var Circle = GameObject.extend(function (settings) {
 var Polygon = GameObject.extend(function (settings) {
 	if (!settings.matrix)
 		if (!settings.width || !settings.height)
-			throw "InvalidArguments: Polygon must be provided with either a matrix of points or a width and height in the arguments list"
+			throw "InvalidArguments: Polygon must be provided with either a matrix of points or a width and height in the arguments list";
 
 	// if no matrix is provided, set up as a rectangle
 	this.matrix = settings.matrix || [new Point(-settings.width / 2, settings.height / 2), 
@@ -201,7 +202,7 @@ var Polygon = GameObject.extend(function (settings) {
 			return max;
 		},
 		fill: "rgba(0, 0, 0, 0.3)"
-	}
+	};
 	this.AABB.left = this.AABB.findLeft(this.matrix) + this.pos.x;
 	this.AABB.right = this.AABB.findRight(this.matrix) + this.pos.x;
 	this.AABB.top = this.AABB.findTop(this.matrix) + this.pos.y;

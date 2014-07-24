@@ -131,17 +131,14 @@ function initGameElements()
 	grid = new Grid({
 		lineColor: 'rgba(0, 0, 0, 1)',
 		lineSpacing: 30,
-		labelColor: 'black',
+		labelColor: 'black'
 	});
 }
 
 // Game loop
 function loop()
 {
-	if (eventHandlers.keys.shiftDown)
-		paused = true;
-	else
-		paused = false;
+	paused = eventHandlers.keys.shiftDown;
 
 	if (!paused || step) {
 		step = false;
@@ -150,7 +147,7 @@ function loop()
 		//resolveCollisions();
 		render();
 	}
-	requestAnimationFrame(loop);
+	requestAnimationFrame(loop, 1000 / 60);
 }
 
 // Update all game elements
@@ -159,7 +156,7 @@ function update()
 	for (var i in gameObjects)
 		gameObjects[i].AABB.fill = 'rgba(0, 0, 0, 0.3)';
 
-	for (var i in gameObjects)
+	for (var j in gameObjects)
 	{
 		gameObjects[i].update();
 		gameObjects[i].addForce(0, 0, 0, settings.gravity);
