@@ -9,19 +9,27 @@
  * GameObject superclass
  * @param settings Object containing initializations for the GameObject
  */
- //noinspection JSUnresolvedFunction
+
 var GameObject = klass(function (settings) {
  	if (!settings.pos)
- 		throw "InvalidArguments: Position of GameObject not specified in arguments list";
+ 		throw "GameObject ctor: Position of GameObject not specified in arguments list";
 
- 	this.pos = settings.pos || new Point(0, 0); // position of the GameObject on the canvas
- 	this.vel = settings.vel || {x: 0, y: 0}; // velocity of the GameObject
- 	this.rotation = settings.rotation || 0; // rotation of the object from its default, in radians
- 	this.alpha = settings.alpha || 0; // angular velocity of the GameObject
- 	this.mass = settings.mass || 1; // mass of the GameObject
- 	this.color = settings.color || 'black'; // color of the GameObject
-	this.selected = false; // whether or not this object is selected
-	this.wireframe = settings.wireframe || false; // whether or not to draw this object with a wireframe
+ 	this.pos = settings.pos || new Point(0, 0);              // position of the GameObject on the canvas
+ 	this.vel = settings.vel || {x: 0, y: 0};                 // velocity of the GameObject
+ 	this.rotation = settings.rotation || 0;                  // rotation of the object from its default, in radians
+ 	this.alpha = settings.alpha || 0;                        // angular velocity of the GameObject
+ 	this.mass = settings.mass || 1;                          // mass of the GameObject
+ 	this.color = settings.color || 'black';                  // color of the GameObject
+	this.selected = false;                                   // whether or not this object is selected
+	this.wireframe = settings.wireframe || false;            // whether or not to draw this object with a wireframe
+	
+	this.AABB = {                                            // axis-aligned bounding box
+		left: undefined,
+		right: undefined,
+		top: undefined,
+		bottom: undefined,
+		fill: 'rgba(0, 0, 0, 0.3)'
+	}
  })
  	.methods({
 		/*
@@ -38,19 +46,17 @@ var GameObject = klass(function (settings) {
 		 * Render the GameObject
 		 * @param ctx The context to render to
 		 */
- 		render: function (ctx) {
-			if (!this.wireframe)
-			{
+ 		render: function (ctx) 
+		{
+			if (!this.wireframe) {
 				ctx.fillStyle = this.color;
 				ctx.fill();
-			} 
-			else
-			{
+			} else {
 				ctx.strokeStyle = this.color;
 				ctx.stroke();
 			}
 			ctx.restore();
-			ctx.fillRect(this.pos.x - 1, this.pos.y - 1, 3, 3);
+			ctx.fillRect(this.pos.x, this.pos.y, 3, 3); // center of the game object
 		},
 		/*
 		 * Add a force to the GameObject at the specificed position
@@ -93,13 +99,6 @@ var Circle = GameObject.extend(function (settings) {
 	if (!settings.radius)
 		throw "InvalidArguments: Circle must be provided with a radius in the arguments list";
 	this.radius = settings.radius;
-	this.AABB = { // axis-aligned bounding box
-		left: settings.pos.x - settings.radius,
-		right: settings.pos.x - settings.radius,
-		top: settings.pos.y - settings.radius,
-		bottom: settings.pos.y + settings.radius,
-		fill: 'rgba(0, 0, 0, 0.3)'
-	}
 })
 	.methods({
 		update: function () {
@@ -157,56 +156,56 @@ var Polygon = GameObject.extend(function (settings) {
 
 	// if no matrix is provided, set up as a rectangle
 	this.matrix = settings.matrix || [new Point(-settings.width / 2, settings.height / 2), 
-									  new Point(-settings.width / 2, -settings.height / 2), 
-									  new Point(settings.width / 2, -settings.height / 2), 
-									  new Point(settings.width / 2, settings.height / 2)];
-	this.AABB = { // axis-aligned bounding box
-		findLeft: function(matrix) {
-			var min = Number.MAX_VALUE;
-			for (var i = 0; i < matrix.length; i++)
-			{
-				var curr = matrix[i].x;
-				if (curr < min)
-					min = curr;
-			}
-			return min;
-		},
-		findRight: function(matrix) {
-			var max = Number.MIN_VALUE;
-			for (var i = 0; i < matrix.length; i++)
-			{
-				var curr = matrix[i].x;
-				if (curr > max)
-					max = curr;
-			}
-			return max;
-		},
-		findTop: function(matrix) {
-			var min = Number.MAX_VALUE;
-			for (var i = 0; i < matrix.length; i++)
-			{
-				var curr = matrix[i].y;
-				if (curr < min)
-					min = curr;
-			}
-			return min;
-		},
-		findBottom: function(matrix) {
-			var max = Number.MIN_VALUE;
-			for (var i = 0; i < matrix.length; i++)
-			{
-				var curr = matrix[i].y;
-				if (curr > max)
-					max = curr;
-			}
-			return max;
-		},
-		fill: "rgba(0, 0, 0, 0.3)"
+                                     new Point(-settings.width / 2, -settings.height / 2), 
+                                     new Point(settings.width / 2, -settings.height / 2), 
+                                     new Point(settings.width / 2, settings.height / 2)];
+	
+	// Methods to find the left, right, top, and bottom of this gameobject's AABB
+	this.AABB.findLeft = function(matrix) 
+	{
+		var min = Number.MAX_VALUE;
+		for (var i = 0; i < matrix.length; i++)
+		{
+			var curr = matrix[i].x;
+			if (curr < min)
+				min = curr;
+		}
+		return min;
 	};
-	this.AABB.left = this.AABB.findLeft(this.matrix) + this.pos.x;
-	this.AABB.right = this.AABB.findRight(this.matrix) + this.pos.x;
-	this.AABB.top = this.AABB.findTop(this.matrix) + this.pos.y;
-	this.AABB.bottom = this.AABB.findBottom(this.matrix) + this.pos.y;
+	
+	this.AABB.findRight = function(matrix) 
+	{
+		var max = Number.MIN_VALUE;
+		for (var i = 0; i < matrix.length; i++)
+		{
+			var curr = matrix[i].x;
+			if (curr > max)
+				max = curr;
+		}
+		return max;
+	};
+	
+	this.AABB.findTop = function(matrix) {
+		var min = Number.MAX_VALUE;
+		for (var i = 0; i < matrix.length; i++)
+		{
+			var curr = matrix[i].y;
+			if (curr < min)
+				min = curr;
+		}
+		return min;
+	};
+	
+	this.AABB.findBottom = function(matrix) {
+		var max = Number.MIN_VALUE;
+		for (var i = 0; i < matrix.length; i++)
+		{
+			var curr = matrix[i].y;
+			if (curr > max)
+				max = curr;
+		}
+		return max;
+	};
 })
 	.methods({
 		update: function () {

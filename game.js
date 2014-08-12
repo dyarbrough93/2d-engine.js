@@ -138,8 +138,7 @@ function initGameElements()
 // Game loop
 function loop()
 {
-	paused = eventHandlers.keys.shiftDown;
-
+	paused = eventHandlers.isKeyDown(keycode.SHIFT);
 	if (!paused || step) {
 		step = false;
 		update();
@@ -156,7 +155,7 @@ function update()
 	for (var i in gameObjects)
 		gameObjects[i].AABB.fill = 'rgba(0, 0, 0, 0.3)';
 
-	for (var j in gameObjects)
+	for (var i in gameObjects)
 	{
 		gameObjects[i].update();
 		gameObjects[i].addForce(0, 0, 0, settings.gravity);
